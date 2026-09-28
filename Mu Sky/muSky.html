@@ -1,0 +1,2132 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>MU Sky - Simulador de Resets</title>
+
+    <style>
+        :root {
+            --bg: #090a0f;
+            --bg-secondary: #0e1017;
+            --card: #12141d;
+            --card-hover: #171a25;
+            --border: #242735;
+
+            --text: #f3f4f6;
+            --text-secondary: #a7acbb;
+            --text-muted: #72788a;
+
+            --accent: #ff2d3d;
+            --accent-hover: #ff4857;
+            --accent-soft: rgba(255, 45, 61, 0.12);
+
+            --gold: #ffd21c;
+            --gold-soft: rgba(255, 210, 28, 0.12);
+
+            --green: #35d07f;
+            --green-soft: rgba(53, 208, 127, 0.12);
+
+            --blue: #4aa8ff;
+            --blue-soft: rgba(74, 168, 255, 0.12);
+
+            --shadow: 0 12px 40px rgba(0, 0, 0, 0.30);
+
+            --radius: 18px;
+        }
+
+        html.light {
+            --bg: #f3f4f7;
+            --bg-secondary: #ffffff;
+            --card: #ffffff;
+            --card-hover: #f7f8fa;
+            --border: #e1e4ea;
+
+            --text: #161922;
+            --text-secondary: #5d6473;
+            --text-muted: #858c9b;
+
+            --accent: #e52334;
+            --accent-hover: #c91c2c;
+            --accent-soft: rgba(229, 35, 52, 0.09);
+
+            --gold: #d39f00;
+            --gold-soft: rgba(211, 159, 0, 0.10);
+
+            --green: #168d52;
+            --green-soft: rgba(22, 141, 82, 0.10);
+
+            --blue: #1976c9;
+            --blue-soft: rgba(25, 118, 201, 0.10);
+
+            --shadow: 0 10px 30px rgba(20, 25, 40, 0.08);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+
+            font-family:
+                Inter,
+                ui-sans-serif,
+                system-ui,
+                -apple-system,
+                BlinkMacSystemFont,
+                "Segoe UI",
+                sans-serif;
+
+            background:
+                radial-gradient(
+                    circle at top right,
+                    rgba(255, 45, 61, 0.07),
+                    transparent 30%
+                ),
+                var(--bg);
+
+            color: var(--text);
+            transition:
+                background 0.25s ease,
+                color 0.25s ease;
+        }
+
+        .container {
+            width: min(1180px, calc(100% - 32px));
+            margin: 0 auto;
+            padding: 28px 0 50px;
+        }
+
+        /* ---------------------------------------------------------
+           HEADER
+        --------------------------------------------------------- */
+
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            margin-bottom: 28px;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .brand-logo {
+            font-size: 26px;
+            font-weight: 900;
+            letter-spacing: -1.5px;
+        }
+
+        .brand-logo span {
+            color: var(--accent);
+        }
+
+        .brand-subtitle {
+            color: var(--text-muted);
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            padding-left: 12px;
+            border-left: 1px solid var(--border);
+        }
+
+        .theme-toggle {
+            border: 1px solid var(--border);
+            background: var(--card);
+            color: var(--text);
+            border-radius: 12px;
+            padding: 10px 14px;
+            cursor: pointer;
+
+            display: flex;
+            align-items: center;
+            gap: 8px;
+
+            font-size: 13px;
+            font-weight: 700;
+
+            transition:
+                background 0.2s ease,
+                border-color 0.2s ease,
+                transform 0.2s ease;
+        }
+
+        .theme-toggle:hover {
+            background: var(--card-hover);
+            border-color: var(--accent);
+            transform: translateY(-1px);
+        }
+
+        /* ---------------------------------------------------------
+           HERO
+        --------------------------------------------------------- */
+
+        .hero {
+            margin-bottom: 22px;
+        }
+
+        .hero h1 {
+            margin: 0 0 8px;
+            font-size: clamp(28px, 5vw, 42px);
+            line-height: 1.05;
+            letter-spacing: -1.7px;
+        }
+
+        .hero h1 span {
+            color: var(--accent);
+        }
+
+        .hero p {
+            margin: 0;
+            max-width: 760px;
+            color: var(--text-secondary);
+            line-height: 1.65;
+            font-size: 15px;
+        }
+
+        /* ---------------------------------------------------------
+           CONTROLS
+        --------------------------------------------------------- */
+
+        .control-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 22px;
+            box-shadow: var(--shadow);
+            margin-bottom: 22px;
+        }
+
+        .controls-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr auto;
+            gap: 16px;
+            align-items: end;
+        }
+
+        .field {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .field label {
+            color: var(--text-secondary);
+            font-size: 12px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.7px;
+        }
+
+        .input-wrap {
+            position: relative;
+        }
+
+        select,
+        input[type="number"] {
+            width: 100%;
+            height: 50px;
+
+            background: var(--bg-secondary);
+            color: var(--text);
+
+            border: 1px solid var(--border);
+            border-radius: 12px;
+
+            padding: 0 14px;
+
+            outline: none;
+
+            font: inherit;
+            font-size: 15px;
+            font-weight: 700;
+
+            transition:
+                border-color 0.2s ease,
+                box-shadow 0.2s ease,
+                background 0.2s ease;
+        }
+
+        select:focus,
+        input[type="number"]:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-soft);
+        }
+
+        input[type="number"] {
+            padding-right: 70px;
+        }
+
+        .input-suffix {
+            position: absolute;
+            right: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+
+            color: var(--text-muted);
+            font-size: 12px;
+            font-weight: 800;
+            pointer-events: none;
+        }
+
+        .reset-button {
+            height: 50px;
+            border: 0;
+            border-radius: 12px;
+            padding: 0 20px;
+
+            background: var(--accent);
+            color: #fff;
+
+            font: inherit;
+            font-weight: 800;
+
+            cursor: pointer;
+
+            transition:
+                background 0.2s ease,
+                transform 0.2s ease,
+                box-shadow 0.2s ease;
+        }
+
+        .reset-button:hover {
+            background: var(--accent-hover);
+            transform: translateY(-1px);
+            box-shadow: 0 8px 20px rgba(255, 45, 61, 0.22);
+        }
+
+        .preset-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 14px;
+        }
+
+        .preset {
+            border: 1px solid var(--border);
+            background: transparent;
+            color: var(--text-secondary);
+            border-radius: 9px;
+            padding: 7px 11px;
+
+            font-size: 12px;
+            font-weight: 700;
+
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .preset:hover {
+            border-color: var(--accent);
+            color: var(--text);
+            background: var(--accent-soft);
+        }
+
+        /* ---------------------------------------------------------
+           MAIN RESULT
+        --------------------------------------------------------- */
+
+        .main-result {
+            display: grid;
+            grid-template-columns: minmax(0, 1.3fr) minmax(300px, 0.7fr);
+            gap: 18px;
+            margin-bottom: 22px;
+        }
+
+        .result-card {
+            position: relative;
+            overflow: hidden;
+
+            background:
+                linear-gradient(
+                    145deg,
+                    var(--card),
+                    var(--bg-secondary)
+                );
+
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+
+            padding: 28px;
+            box-shadow: var(--shadow);
+        }
+
+        .result-card.primary {
+            border-color: rgba(255, 45, 61, 0.35);
+        }
+
+        .result-card.primary::after {
+            content: "";
+            position: absolute;
+            right: -90px;
+            top: -90px;
+
+            width: 220px;
+            height: 220px;
+
+            border-radius: 50%;
+
+            background: var(--accent-soft);
+            filter: blur(5px);
+
+            pointer-events: none;
+        }
+
+        .eyebrow {
+            color: var(--text-muted);
+            font-size: 11px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+        }
+
+        .selected-vip {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+
+            padding: 7px 10px;
+            border-radius: 9px;
+
+            background: var(--accent-soft);
+            color: var(--accent);
+
+            font-size: 13px;
+            font-weight: 900;
+
+            margin-bottom: 20px;
+        }
+
+        .big-number {
+            position: relative;
+            z-index: 1;
+
+            font-size: clamp(44px, 8vw, 76px);
+            line-height: 0.95;
+            letter-spacing: -4px;
+
+            font-weight: 950;
+
+            margin: 0 0 12px;
+        }
+
+        .big-label {
+            color: var(--text-secondary);
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .next-reset {
+            position: relative;
+            z-index: 1;
+
+            margin-top: 24px;
+            padding-top: 18px;
+
+            border-top: 1px solid var(--border);
+
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+        }
+
+        .next-reset-item {
+            min-width: 0;
+        }
+
+        .next-reset-label {
+            display: block;
+            color: var(--text-muted);
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+
+        .next-reset-value {
+            font-size: 17px;
+            font-weight: 900;
+        }
+
+        /* ---------------------------------------------------------
+           QUICK STATS
+        --------------------------------------------------------- */
+
+        .stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .stat {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 18px;
+        }
+
+        .stat-label {
+            color: var(--text-muted);
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+            margin-bottom: 7px;
+        }
+
+        .stat-value {
+            font-size: 21px;
+            font-weight: 900;
+            line-height: 1.2;
+        }
+
+        .stat-value.green {
+            color: var(--green);
+        }
+
+        .stat-value.blue {
+            color: var(--blue);
+        }
+
+        .stat-value.gold {
+            color: var(--gold);
+        }
+
+        /* ---------------------------------------------------------
+           VIP COMPARISON
+        --------------------------------------------------------- */
+
+        .section {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            margin-bottom: 22px;
+            overflow: hidden;
+        }
+
+        .section-header {
+            padding: 20px 22px;
+            border-bottom: 1px solid var(--border);
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .section-title {
+            margin: 0;
+            font-size: 16px;
+            font-weight: 900;
+        }
+
+        .section-description {
+            margin: 4px 0 0;
+            color: var(--text-muted);
+            font-size: 12px;
+        }
+
+        .table-wrap {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 600px;
+        }
+
+        th,
+        td {
+            padding: 16px 18px;
+            border-bottom: 1px solid var(--border);
+            text-align: left;
+        }
+
+        th {
+            color: var(--text-muted);
+            background: var(--bg-secondary);
+
+            font-size: 11px;
+            font-weight: 900;
+
+            text-transform: uppercase;
+            letter-spacing: 0.7px;
+        }
+
+        td {
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        tbody tr {
+            transition: background 0.18s ease;
+        }
+
+        tbody tr:hover {
+            background: var(--card-hover);
+        }
+
+        tbody tr:last-child td {
+            border-bottom: 0;
+        }
+
+        .vip-name {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .vip-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+
+            min-width: 72px;
+            padding: 6px 9px;
+
+            border-radius: 8px;
+
+            font-size: 11px;
+            font-weight: 900;
+        }
+
+        .vip-free {
+            background: rgba(160, 168, 180, 0.12);
+            color: var(--text-secondary);
+        }
+
+        .vip-bronze {
+            background: rgba(184, 115, 51, 0.13);
+            color: #c89061;
+        }
+
+        .vip-prata {
+            background: rgba(170, 180, 200, 0.16);
+            color: #bac4d8;
+        }
+
+        .vip-ouro {
+            background: var(--gold-soft);
+            color: var(--gold);
+        }
+
+        .current-row {
+            background: var(--accent-soft);
+        }
+
+        .current-row:hover {
+            background: var(--accent-soft);
+        }
+
+        .total-points {
+            font-size: 18px;
+            font-weight: 950;
+        }
+
+        .difference {
+            font-size: 12px;
+            font-weight: 800;
+        }
+
+        .difference.positive {
+            color: var(--green);
+        }
+
+        .difference.negative {
+            color: var(--accent);
+        }
+
+        .difference.neutral {
+            color: var(--text-muted);
+        }
+
+        /* ---------------------------------------------------------
+           RESET TABLE
+        --------------------------------------------------------- */
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 18px;
+        }
+
+        .info-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            overflow: hidden;
+        }
+
+        .info-card .section-header {
+            background: var(--bg-secondary);
+        }
+
+        .formula {
+            padding: 20px;
+            color: var(--text-secondary);
+            font-size: 13px;
+            line-height: 1.7;
+        }
+
+        .formula strong {
+            color: var(--text);
+        }
+
+        .table-small th,
+        .table-small td {
+            padding: 12px 14px;
+        }
+
+        .table-small td {
+            font-size: 13px;
+        }
+
+        .current-band {
+            background: var(--accent-soft);
+        }
+
+        /* ---------------------------------------------------------
+           FOOTER
+        --------------------------------------------------------- */
+
+        .footer {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 11px;
+            padding-top: 8px;
+        }
+
+        /* ---------------------------------------------------------
+           RESPONSIVE
+        --------------------------------------------------------- */
+
+        @media (max-width: 850px) {
+            .controls-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .controls-grid .reset-button {
+                grid-column: 1 / -1;
+            }
+
+            .main-result {
+                grid-template-columns: 1fr;
+            }
+
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                width: min(100% - 20px, 1180px);
+                padding-top: 18px;
+            }
+
+            .header {
+                align-items: flex-start;
+            }
+
+            .brand-subtitle {
+                display: none;
+            }
+
+            .hero h1 {
+                font-size: 32px;
+            }
+
+            .control-card,
+            .result-card {
+                padding: 18px;
+            }
+
+            .controls-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .controls-grid .reset-button {
+                grid-column: auto;
+            }
+
+            .next-reset {
+                flex-direction: column;
+            }
+
+            .stats {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .stats .stat {
+                padding: 14px;
+            }
+
+            .stat-value {
+                font-size: 17px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <!-- HEADER -->
+    <header class="header">
+
+        <div class="brand">
+
+            <div class="brand-logo">
+                MU<span>SKY</span>
+            </div>
+
+            <div class="brand-subtitle">
+                Simulador de Resets
+            </div>
+
+        </div>
+
+        <button
+            id="themeToggle"
+            class="theme-toggle"
+            type="button"
+            aria-label="Alternar tema"
+        >
+            <span id="themeIcon">☀️</span>
+            <span id="themeText">Light</span>
+        </button>
+
+    </header>
+
+
+    <!-- HERO -->
+    <section class="hero">
+
+        <h1>
+            Simulador de <span>Resets</span>
+        </h1>
+
+        <p>
+            Informe seu VIP e a quantidade atual de resets para descobrir
+            quantos pontos você já acumulou e quanto teria nos outros níveis VIP.
+        </p>
+
+    </section>
+
+
+    <!-- CONTROLS -->
+    <section class="control-card">
+
+        <div class="controls-grid">
+
+            <div class="field">
+
+                <label for="vip">
+                    Seu VIP
+                </label>
+
+                <select id="vip">
+
+                    <option value="free">
+                        Free
+                    </option>
+
+                    <option value="bronze">
+                        Bronze
+                    </option>
+
+                    <option value="prata">
+                        Prata
+                    </option>
+
+                    <option value="ouro">
+                        Ouro
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <div class="field">
+
+                <label for="resets">
+                    Resets atuais
+                </label>
+
+                <div class="input-wrap">
+
+                    <input
+                        id="resets"
+                        type="number"
+                        min="0"
+                        max="999999999"
+                        value="0"
+                        inputmode="numeric"
+                    >
+
+                    <span class="input-suffix">
+                        resets
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <button
+                id="resetButton"
+                class="reset-button"
+                type="button"
+            >
+                ↺ Zerar
+            </button>
+
+        </div>
+
+
+        <div class="preset-row">
+
+            <button class="preset" data-resets="50">
+                50
+            </button>
+
+            <button class="preset" data-resets="100">
+                100
+            </button>
+
+            <button class="preset" data-resets="350">
+                350
+            </button>
+
+            <button class="preset" data-resets="500">
+                500
+            </button>
+
+            <button class="preset" data-resets="1000">
+                1.000
+            </button>
+
+            <button class="preset" data-resets="2500">
+                2.500
+            </button>
+
+            <button class="preset" data-resets="5000">
+                5.000
+            </button>
+
+            <button class="preset" data-resets="10000">
+                10.000
+            </button>
+
+        </div>
+
+    </section>
+
+
+    <!-- MAIN RESULT -->
+    <section class="main-result">
+
+        <div class="result-card primary">
+
+            <div class="eyebrow">
+                Seus pontos acumulados
+            </div>
+
+            <div
+                id="selectedVip"
+                class="selected-vip"
+            >
+                ⭐ Free
+            </div>
+
+            <div
+                id="mainTotal"
+                class="big-number"
+            >
+                0
+            </div>
+
+            <div class="big-label">
+                pontos de reset
+            </div>
+
+
+            <div class="next-reset">
+
+                <div class="next-reset-item">
+
+                    <span class="next-reset-label">
+                        Próximo reset
+                    </span>
+
+                    <span
+                        id="nextResetNumber"
+                        class="next-reset-value"
+                    >
+                        Reset 1
+                    </span>
+
+                </div>
+
+
+                <div class="next-reset-item">
+
+                    <span class="next-reset-label">
+                        Pontos ganhos
+                    </span>
+
+                    <span
+                        id="nextResetPoints"
+                        class="next-reset-value"
+                    >
+                        +84
+                    </span>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="stats">
+
+            <div class="stat">
+
+                <div class="stat-label">
+                    Resets atuais
+                </div>
+
+                <div
+                    id="statResets"
+                    class="stat-value"
+                >
+                    0
+                </div>
+
+            </div>
+
+
+            <div class="stat">
+
+                <div class="stat-label">
+                    Pontos / reset atual
+                </div>
+
+                <div
+                    id="statPointsPerReset"
+                    class="stat-value blue"
+                >
+                    84
+                </div>
+
+            </div>
+
+
+            <div class="stat">
+
+                <div class="stat-label">
+                    VIP com mais pontos
+                </div>
+
+                <div
+                    id="statBestVip"
+                    class="stat-value gold"
+                >
+                    Ouro
+                </div>
+
+            </div>
+
+
+            <div class="stat">
+
+                <div class="stat-label">
+                    Diferença para o melhor
+                </div>
+
+                <div
+                    id="statDifference"
+                    class="stat-value green"
+                >
+                    +210
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- VIP COMPARISON -->
+    <section class="section">
+
+        <div class="section-header">
+
+            <div>
+
+                <h2 class="section-title">
+                    Comparação por VIP
+                </h2>
+
+                <p class="section-description">
+                    Pontos totais acumulados considerando a mesma quantidade de resets.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="table-wrap">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>
+                            VIP
+                        </th>
+
+                        <th>
+                            Pontos totais
+                        </th>
+
+                        <th>
+                            Diferença para seu VIP
+                        </th>
+
+                        <th>
+                            Pontos no próximo reset
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody id="vipTableBody">
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </section>
+
+
+    <!-- RESET RULES -->
+    <div class="info-grid">
+
+        <section class="info-card">
+
+            <div class="section-header">
+
+                <div>
+
+                    <h2 class="section-title">
+                        Faixas de pontos
+                    </h2>
+
+                    <p class="section-description">
+                        Pontos recebidos em cada reset.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="table-wrap">
+
+                <table class="table-small">
+
+                    <thead>
+
+                        <tr>
+
+                            <th>
+                                Resets
+                            </th>
+
+                            <th>
+                                Free
+                            </th>
+
+                            <th>
+                                Bronze
+                            </th>
+
+                            <th>
+                                Prata
+                            </th>
+
+                            <th>
+                                Ouro
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+                    <tbody id="rulesTableBody">
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+
+        <section class="info-card">
+
+            <div class="section-header">
+
+                <div>
+
+                    <h2 class="section-title">
+                        Como funciona
+                    </h2>
+
+                    <p class="section-description">
+                        Regra utilizada pelo simulador.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="formula">
+
+                <strong>
+                    Cada reset é calculado pela faixa correspondente.
+                </strong>
+
+                <br><br>
+
+                Exemplo:
+                se o personagem possui <strong>120 resets</strong>,
+                os resets de <strong>1 a 50</strong> usam a primeira faixa,
+                os resets de <strong>51 a 100</strong> usam a segunda,
+                e os resets de <strong>101 a 120</strong> usam a terceira.
+
+                <br><br>
+
+                Portanto, o simulador calcula o valor
+                <strong>acumulado de todos os resets</strong>,
+                e não simplesmente multiplica a quantidade atual de resets
+                pelo valor da faixa atual.
+
+                <br><br>
+
+                <strong>
+                    Reset 0 = 0 pontos.
+                </strong>
+
+                <br>
+
+                O próximo reset também é mostrado para facilitar
+                o planejamento da evolução do personagem.
+
+            </div>
+
+        </section>
+
+    </div>
+
+
+    <div class="footer">
+        MU Sky — Simulador de Resets • Funciona localmente, sem servidor.
+    </div>
+
+</div>
+
+
+<script>
+    /*
+     * ============================================================
+     * DADOS DO SERVIDOR
+     * ============================================================
+     *
+     * Cada faixa possui:
+     *
+     * min     = primeiro reset da faixa
+     * max     = último reset da faixa
+     * free    = pontos por reset no Free
+     * bronze  = pontos por reset no Bronze
+     * prata   = pontos por reset no Prata
+     * ouro    = pontos por reset no Ouro
+     *
+     * Na última faixa, max = Infinity.
+     */
+
+    const RESET_RULES = [
+
+        {
+            min: 1,
+            max: 50,
+            free: 84,
+            bronze: 98,
+            prata: 112,
+            ouro: 126
+        },
+
+        {
+            min: 51,
+            max: 100,
+            free: 80,
+            bronze: 94,
+            prata: 107,
+            ouro: 121
+        },
+
+        {
+            min: 101,
+            max: 200,
+            free: 74,
+            bronze: 87,
+            prata: 99,
+            ouro: 112
+        },
+
+        {
+            min: 201,
+            max: 350,
+            free: 64,
+            bronze: 75,
+            prata: 86,
+            ouro: 97
+        },
+
+        {
+            min: 351,
+            max: 500,
+            free: 53,
+            bronze: 62,
+            prata: 71,
+            ouro: 80
+        },
+
+        {
+            min: 501,
+            max: 700,
+            free: 39,
+            bronze: 46,
+            prata: 52,
+            ouro: 59
+        },
+
+        {
+            min: 701,
+            max: 1000,
+            free: 20,
+            bronze: 23,
+            prata: 26,
+            ouro: 30
+        },
+
+        {
+            min: 1001,
+            max: 1500,
+            free: 9,
+            bronze: 10,
+            prata: 11,
+            ouro: 12
+        },
+
+        {
+            min: 1501,
+            max: 2500,
+            free: 9,
+            bronze: 9,
+            prata: 10,
+            ouro: 12
+        },
+
+        {
+            min: 2501,
+            max: 5000,
+            free: 8,
+            bronze: 9,
+            prata: 10,
+            ouro: 11
+        },
+
+        {
+            min: 5001,
+            max: 10000,
+            free: 8,
+            bronze: 8,
+            prata: 9,
+            ouro: 10
+        },
+
+        {
+            min: 10001,
+            max: 20000,
+            free: 6,
+            bronze: 7,
+            prata: 7,
+            ouro: 7
+        },
+
+        {
+            min: 20001,
+            max: 30000,
+            free: 5,
+            bronze: 4,
+            prata: 4,
+            ouro: 3
+        },
+
+        {
+            min: 30001,
+            max: 45000,
+            free: 2,
+            bronze: 2,
+            prata: 1,
+            ouro: 1
+        },
+
+        {
+            min: 45001,
+            max: Infinity,
+            free: 1,
+            bronze: 1,
+            prata: 1,
+            ouro: 1
+        }
+
+    ];
+
+
+    /*
+     * ============================================================
+     * CONFIGURAÇÃO DOS VIPs
+     * ============================================================
+     */
+
+    const VIPS = {
+
+        free: {
+            name: "Free",
+            icon: "🆓"
+        },
+
+        bronze: {
+            name: "Bronze",
+            icon: "🥉"
+        },
+
+        prata: {
+            name: "Prata",
+            icon: "🥈"
+        },
+
+        ouro: {
+            name: "Ouro",
+            icon: "🥇"
+        }
+
+    };
+
+
+    /*
+     * ============================================================
+     * ELEMENTOS DA PÁGINA
+     * ============================================================
+     */
+
+    const vipInput = document.getElementById("vip");
+    const resetsInput = document.getElementById("resets");
+
+    const themeToggle = document.getElementById("themeToggle");
+    const themeIcon = document.getElementById("themeIcon");
+    const themeText = document.getElementById("themeText");
+
+    const mainTotal = document.getElementById("mainTotal");
+    const selectedVip = document.getElementById("selectedVip");
+
+    const nextResetNumber = document.getElementById("nextResetNumber");
+    const nextResetPoints = document.getElementById("nextResetPoints");
+
+    const statResets = document.getElementById("statResets");
+    const statPointsPerReset = document.getElementById("statPointsPerReset");
+    const statBestVip = document.getElementById("statBestVip");
+    const statDifference = document.getElementById("statDifference");
+
+    const vipTableBody = document.getElementById("vipTableBody");
+    const rulesTableBody = document.getElementById("rulesTableBody");
+
+
+    /*
+     * ============================================================
+     * FORMATAÇÃO
+     * ============================================================
+     */
+
+    const numberFormatter = new Intl.NumberFormat("pt-BR");
+
+
+    function formatNumber(value) {
+        return numberFormatter.format(value);
+    }
+
+
+    function formatRange(rule) {
+
+        if (rule.max === Infinity) {
+            return formatNumber(rule.min) + " ou mais";
+        }
+
+        return (
+            formatNumber(rule.min) +
+            " a " +
+            formatNumber(rule.max)
+        );
+    }
+
+
+    /*
+     * ============================================================
+     * DESCOBRIR A FAIXA DE UM RESET
+     * ============================================================
+     */
+
+    function getRuleForReset(resetNumber) {
+
+        for (const rule of RESET_RULES) {
+
+            if (
+                resetNumber >= rule.min &&
+                resetNumber <= rule.max
+            ) {
+                return rule;
+            }
+
+        }
+
+        return null;
+    }
+
+
+    /*
+     * ============================================================
+     * CALCULAR PONTOS ACUMULADOS
+     * ============================================================
+     *
+     * Exemplo:
+     *
+     * calcularTotal(120, "free")
+     *
+     * soma:
+     *
+     * 1..50   = 50 x 84
+     * 51..100 = 50 x 80
+     * 101..120 = 20 x 74
+     *
+     * total = 6520
+     *
+     */
+
+    function calculateTotal(resets, vip) {
+
+        if (resets <= 0) {
+            return 0;
+        }
+
+        let total = 0;
+
+        for (const rule of RESET_RULES) {
+
+            if (resets < rule.min) {
+                break;
+            }
+
+            const end =
+                rule.max === Infinity
+                    ? resets
+                    : Math.min(resets, rule.max);
+
+            const quantity =
+                end - rule.min + 1;
+
+            if (quantity > 0) {
+
+                total +=
+                    quantity *
+                    rule[vip];
+
+            }
+
+            if (resets <= rule.max) {
+                break;
+            }
+
+        }
+
+        return total;
+    }
+
+
+    /*
+     * ============================================================
+     * PONTOS DE UM RESET ESPECÍFICO
+     * ============================================================
+     */
+
+    function getPointsForReset(resetNumber, vip) {
+
+        if (resetNumber <= 0) {
+            return 0;
+        }
+
+        const rule = getRuleForReset(resetNumber);
+
+        if (!rule) {
+            return 0;
+        }
+
+        return rule[vip];
+    }
+
+
+    /*
+     * ============================================================
+     * RENDERIZAR TABELA DE REGRAS
+     * ============================================================
+     */
+
+    function renderRulesTable(currentResets) {
+
+        rulesTableBody.innerHTML = "";
+
+        for (const rule of RESET_RULES) {
+
+            const tr = document.createElement("tr");
+
+            if (
+                currentResets >= rule.min &&
+                currentResets <= rule.max
+            ) {
+                tr.classList.add("current-band");
+            }
+
+            tr.innerHTML = `
+
+                <td>
+                    ${formatRange(rule)}
+                </td>
+
+                <td>
+                    ${formatNumber(rule.free)}
+                </td>
+
+                <td>
+                    ${formatNumber(rule.bronze)}
+                </td>
+
+                <td>
+                    ${formatNumber(rule.prata)}
+                </td>
+
+                <td>
+                    ${formatNumber(rule.ouro)}
+                </td>
+
+            `;
+
+            rulesTableBody.appendChild(tr);
+
+        }
+
+    }
+
+
+    /*
+     * ============================================================
+     * RENDERIZAR COMPARAÇÃO DOS VIPS
+     * ============================================================
+     */
+
+    function renderVipComparison(resets, currentVip) {
+
+        vipTableBody.innerHTML = "";
+
+        const totals = {};
+
+        for (const vip of Object.keys(VIPS)) {
+
+            totals[vip] =
+                calculateTotal(resets, vip);
+
+        }
+
+
+        /*
+         * Descobrir o maior total
+         */
+
+        let bestVip = "free";
+
+        for (const vip of Object.keys(VIPS)) {
+
+            if (totals[vip] > totals[bestVip]) {
+                bestVip = vip;
+            }
+
+        }
+
+
+        for (const vip of Object.keys(VIPS)) {
+
+            const vipInfo = VIPS[vip];
+
+            const tr =
+                document.createElement("tr");
+
+            if (vip === currentVip) {
+                tr.classList.add("current-row");
+            }
+
+
+            const difference =
+                totals[vip] -
+                totals[currentVip];
+
+
+            let differenceHtml;
+
+            if (difference > 0) {
+
+                differenceHtml = `
+                    <span class="difference positive">
+                        +${formatNumber(difference)}
+                    </span>
+                `;
+
+            } else if (difference < 0) {
+
+                differenceHtml = `
+                    <span class="difference negative">
+                        ${formatNumber(difference)}
+                    </span>
+                `;
+
+            } else {
+
+                differenceHtml = `
+                    <span class="difference neutral">
+                        —
+                    </span>
+                `;
+
+            }
+
+
+            const nextReset =
+                resets + 1;
+
+            const nextPoints =
+                getPointsForReset(
+                    nextReset,
+                    vip
+                );
+
+
+            let badgeClass =
+                "vip-free";
+
+            if (vip === "bronze") {
+                badgeClass = "vip-bronze";
+            }
+
+            if (vip === "prata") {
+                badgeClass = "vip-prata";
+            }
+
+            if (vip === "ouro") {
+                badgeClass = "vip-ouro";
+            }
+
+
+            tr.innerHTML = `
+
+                <td>
+
+                    <span class="vip-name">
+
+                        <span class="vip-badge ${badgeClass}">
+                            ${vipInfo.icon}
+                            ${vipInfo.name}
+                        </span>
+
+                    </span>
+
+                </td>
+
+                <td>
+                    <span class="total-points">
+                        ${formatNumber(totals[vip])}
+                    </span>
+                </td>
+
+                <td>
+                    ${differenceHtml}
+                </td>
+
+                <td>
+                    +${formatNumber(nextPoints)}
+                </td>
+
+            `;
+
+            vipTableBody.appendChild(tr);
+
+        }
+
+
+        return {
+            totals,
+            bestVip
+        };
+
+    }
+
+
+    /*
+     * ============================================================
+     * ATUALIZAR TODA A INTERFACE
+     * ============================================================
+     */
+
+    function update() {
+
+        let resets =
+            parseInt(resetsInput.value, 10);
+
+        if (
+            Number.isNaN(resets) ||
+            resets < 0
+        ) {
+            resets = 0;
+        }
+
+        resets = Math.floor(resets);
+
+        /*
+         * Corrige o input caso o usuário tenha digitado
+         * alguma coisa inválida.
+         */
+
+        resetsInput.value = resets;
+
+
+        const currentVip =
+            vipInput.value;
+
+
+        const total =
+            calculateTotal(
+                resets,
+                currentVip
+            );
+
+
+        /*
+         * Resultado principal
+         */
+
+        mainTotal.textContent =
+            formatNumber(total);
+
+
+        selectedVip.textContent =
+            VIPS[currentVip].icon +
+            " " +
+            VIPS[currentVip].name;
+
+
+        statResets.textContent =
+            formatNumber(resets);
+
+
+        /*
+         * Próximo reset
+         */
+
+        const nextReset =
+            resets + 1;
+
+        const nextPoints =
+            getPointsForReset(
+                nextReset,
+                currentVip
+            );
+
+        nextResetNumber.textContent =
+            "Reset " +
+            formatNumber(nextReset);
+
+        nextResetPoints.textContent =
+            "+" +
+            formatNumber(nextPoints);
+
+        statPointsPerReset.textContent =
+            formatNumber(
+                resets > 0
+                    ? getPointsForReset(resets, currentVip)
+                    : getPointsForReset(1, currentVip)
+            );
+
+
+        /*
+         * Comparação entre VIPs
+         */
+
+        const comparison =
+            renderVipComparison(
+                resets,
+                currentVip
+            );
+
+
+        statBestVip.textContent =
+            VIPS[comparison.bestVip].name;
+
+
+        const bestTotal =
+            comparison.totals[
+                comparison.bestVip
+            ];
+
+        const differenceToBest =
+            bestTotal -
+            total;
+
+
+        if (differenceToBest === 0) {
+
+            statDifference.textContent =
+                "Você está no melhor";
+
+            statDifference.className =
+                "stat-value green";
+
+        } else {
+
+            statDifference.textContent =
+                "+" +
+                formatNumber(differenceToBest);
+
+            statDifference.className =
+                "stat-value green";
+
+        }
+
+
+        /*
+         * Tabela das faixas
+         */
+
+        renderRulesTable(resets);
+
+
+        /*
+         * Salvar preferências
+         */
+
+        localStorage.setItem(
+            "muSkyVip",
+            currentVip
+        );
+
+        localStorage.setItem(
+            "muSkyResets",
+            String(resets)
+        );
+
+    }
+
+
+    /*
+     * ============================================================
+     * EVENTOS
+     * ============================================================
+     */
+
+    vipInput.addEventListener(
+        "change",
+        update
+    );
+
+    resetsInput.addEventListener(
+        "input",
+        update
+    );
+
+
+    /*
+     * Botão zerar
+     */
+
+    document
+        .getElementById("resetButton")
+        .addEventListener("click", function () {
+
+            resetsInput.value = 0;
+
+            update();
+
+        });
+
+
+    /*
+     * Presets
+     */
+
+    document.querySelectorAll(".preset").forEach(
+        button => {
+
+            button.addEventListener(
+                "click",
+                function () {
+
+                    resetsInput.value =
+                        this.dataset.resets;
+
+                    update();
+
+                    resetsInput.focus();
+
+                }
+            );
+
+        }
+    );
+
+
+    /*
+     * ============================================================
+     * TEMA
+     * ============================================================
+     */
+
+    function applyTheme(theme) {
+
+        const isLight =
+            theme === "light";
+
+        document.documentElement.classList.toggle(
+            "light",
+            isLight
+        );
+
+
+        if (isLight) {
+
+            themeIcon.textContent = "🌙";
+            themeText.textContent = "Dark";
+
+        } else {
+
+            themeIcon.textContent = "☀️";
+            themeText.textContent = "Light";
+
+        }
+
+
+        localStorage.setItem(
+            "muSkyTheme",
+            theme
+        );
+
+    }
+
+
+    themeToggle.addEventListener(
+        "click",
+        function () {
+
+            const isCurrentlyLight =
+                document.documentElement.classList.contains("light");
+
+            applyTheme(
+                isCurrentlyLight
+                    ? "dark"
+                    : "light"
+            );
+
+        }
+    );
+
+
+    /*
+     * ============================================================
+     * RESTAURAR PREFERÊNCIAS
+     * ============================================================
+     */
+
+    const savedTheme =
+        localStorage.getItem("muSkyTheme") || "dark";
+
+    applyTheme(savedTheme);
+
+
+    const savedVip =
+        localStorage.getItem("muSkyVip");
+
+    if (
+        savedVip &&
+        VIPS[savedVip]
+    ) {
+        vipInput.value = savedVip;
+    }
+
+
+    const savedResets =
+        localStorage.getItem("muSkyResets");
+
+    if (savedResets !== null) {
+
+        const parsed =
+            parseInt(savedResets, 10);
+
+        if (
+            !Number.isNaN(parsed) &&
+            parsed >= 0
+        ) {
+            resetsInput.value = parsed;
+        }
+
+    }
+
+
+    /*
+     * ============================================================
+     * INICIALIZAÇÃO
+     * ============================================================
+     */
+
+    update();
+
+</script>
+
+</body>
+</html>
