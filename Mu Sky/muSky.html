@@ -193,6 +193,157 @@
         }
 
         /* ---------------------------------------------------------
+           TABS
+        --------------------------------------------------------- */
+
+        .tabs-nav {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 22px;
+            padding: 6px;
+
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+
+            overflow-x: auto;
+            scrollbar-width: none;
+        }
+
+        .tabs-nav::-webkit-scrollbar {
+            display: none;
+        }
+
+        .tab-btn {
+            flex: 1 1 auto;
+            min-width: max-content;
+
+            border: 0;
+            border-radius: 11px;
+            padding: 12px 18px;
+
+            background: transparent;
+            color: var(--text-secondary);
+
+            font: inherit;
+            font-size: 13px;
+            font-weight: 800;
+
+            cursor: pointer;
+            white-space: nowrap;
+
+            transition:
+                background 0.2s ease,
+                color 0.2s ease,
+                box-shadow 0.2s ease,
+                transform 0.2s ease;
+        }
+
+        .tab-btn:hover {
+            color: var(--text);
+            background: var(--bg-secondary);
+        }
+
+        .tab-btn.active {
+            background: var(--accent);
+            color: #fff;
+            box-shadow: 0 8px 22px rgba(255, 45, 61, 0.28);
+        }
+
+        html.light .tab-btn.active {
+            box-shadow: 0 6px 18px rgba(229, 35, 52, 0.22);
+        }
+
+        .tab-btn:focus-visible {
+            outline: 2px solid var(--accent);
+            outline-offset: 2px;
+        }
+
+        .tab-panel {
+            animation: tabFade 0.28s ease;
+        }
+
+        .tab-panel[hidden] {
+            display: none !important;
+        }
+
+        @keyframes tabFade {
+            from {
+                opacity: 0;
+                transform: translateY(6px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .result-card.goal {
+            border-color: rgba(74, 168, 255, 0.4);
+        }
+
+        .result-card.goal::after {
+            background: var(--blue-soft);
+        }
+
+        .goal-meta {
+            position: relative;
+            z-index: 1;
+
+            margin-top: 20px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border);
+
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .goal-meta-item span:first-child {
+            display: block;
+            color: var(--text-muted);
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+
+        .goal-meta-item span:last-child {
+            font-size: 16px;
+            font-weight: 900;
+        }
+
+        .resets-count {
+            color: var(--blue);
+        }
+
+        html.light .resets-count {
+            color: var(--blue);
+        }
+
+        .surplus-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 10px;
+            padding: 6px 10px;
+            border-radius: 8px;
+            background: var(--green-soft);
+            color: var(--green);
+            font-size: 12px;
+            font-weight: 800;
+        }
+
+        .hint-inline {
+            margin: 0 0 14px;
+            color: var(--text-muted);
+            font-size: 12px;
+            line-height: 1.55;
+        }
+
+        /* ---------------------------------------------------------
            CONTROLS
         --------------------------------------------------------- */
 
@@ -500,6 +651,10 @@
             color: var(--gold);
         }
 
+        .stat-value.warn {
+            color: var(--accent);
+        }
+
         /* ---------------------------------------------------------
            VIP COMPARISON
         --------------------------------------------------------- */
@@ -763,6 +918,15 @@
                 flex-direction: column;
             }
 
+            .goal-meta {
+                grid-template-columns: 1fr;
+            }
+
+            .tab-btn {
+                padding: 11px 14px;
+                font-size: 12px;
+            }
+
             .stats {
                 grid-template-columns: 1fr 1fr;
             }
@@ -817,13 +981,65 @@
             Simulador de <span>Resets</span>
         </h1>
 
-        <p>
+        <p id="heroDescription">
             Informe seu VIP e a quantidade atual de resets para descobrir
             quantos pontos você já acumulou e quanto teria nos outros níveis VIP.
         </p>
 
     </section>
 
+
+    <nav
+        class="tabs-nav"
+        role="tablist"
+        aria-label="Funcionalidades do simulador"
+    >
+
+        <button
+            type="button"
+            class="tab-btn active"
+            role="tab"
+            id="tabPoints"
+            aria-selected="true"
+            aria-controls="panelPoints"
+            data-tab="points"
+        >
+            Calcular pontos
+        </button>
+
+        <button
+            type="button"
+            class="tab-btn"
+            role="tab"
+            id="tabGoal"
+            aria-selected="false"
+            aria-controls="panelGoal"
+            data-tab="goal"
+        >
+            Meta de pontos
+        </button>
+
+        <button
+            type="button"
+            class="tab-btn"
+            role="tab"
+            id="tabReference"
+            aria-selected="false"
+            aria-controls="panelReference"
+            data-tab="reference"
+        >
+            Referência
+        </button>
+
+    </nav>
+
+
+    <div
+        id="panelPoints"
+        class="tab-panel"
+        role="tabpanel"
+        aria-labelledby="tabPoints"
+    >
 
     <!-- CONTROLS -->
     <section class="control-card">
@@ -1128,6 +1344,335 @@
 
     </section>
 
+    </div>
+
+
+    <div
+        id="panelGoal"
+        class="tab-panel"
+        role="tabpanel"
+        aria-labelledby="tabGoal"
+        hidden
+    >
+
+        <section class="control-card">
+
+            <p class="hint-inline">
+                Defina quantos pontos você quer acumular. O simulador calcula o
+                <strong>mínimo de resets</strong> necessário em cada nível VIP
+                (considerando as faixas acumuladas do servidor).
+            </p>
+
+            <div class="controls-grid">
+
+                <div class="field">
+
+                    <label for="vipGoal">
+                        Seu VIP
+                    </label>
+
+                    <select id="vipGoal">
+
+                        <option value="free">
+                            Free
+                        </option>
+
+                        <option value="bronze">
+                            Bronze
+                        </option>
+
+                        <option value="prata">
+                            Prata
+                        </option>
+
+                        <option value="ouro">
+                            Ouro
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="field">
+
+                    <label for="targetPoints">
+                        Meta de pontos
+                    </label>
+
+                    <div class="input-wrap">
+
+                        <input
+                            id="targetPoints"
+                            type="number"
+                            min="0"
+                            max="999999999999"
+                            value="10000"
+                            inputmode="numeric"
+                        >
+
+                        <span class="input-suffix">
+                            pts
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+                <button
+                    id="clearGoalButton"
+                    class="reset-button"
+                    type="button"
+                >
+                    ↺ Limpar
+                </button>
+
+            </div>
+
+
+            <div class="preset-row preset-row-goal">
+
+                <button class="preset preset-goal" data-points="5000">
+                    5.000
+                </button>
+
+                <button class="preset preset-goal" data-points="10000">
+                    10.000
+                </button>
+
+                <button class="preset preset-goal" data-points="25000">
+                    25.000
+                </button>
+
+                <button class="preset preset-goal" data-points="50000">
+                    50.000
+                </button>
+
+                <button class="preset preset-goal" data-points="100000">
+                    100.000
+                </button>
+
+                <button class="preset preset-goal" data-points="250000">
+                    250.000
+                </button>
+
+                <button class="preset preset-goal" data-points="500000">
+                    500.000
+                </button>
+
+                <button class="preset preset-goal" data-points="1000000">
+                    1.000.000
+                </button>
+
+            </div>
+
+        </section>
+
+
+        <section class="main-result">
+
+            <div class="result-card primary goal">
+
+                <div class="eyebrow">
+                    Resets para sua meta
+                </div>
+
+                <div
+                    id="goalSelectedVip"
+                    class="selected-vip"
+                >
+                    ⭐ Free
+                </div>
+
+                <div
+                    id="goalMainResets"
+                    class="big-number resets-count"
+                >
+                    0
+                </div>
+
+                <div class="big-label">
+                    resets necessários
+                </div>
+
+                <div
+                    id="goalSurplus"
+                    class="surplus-tag"
+                    hidden
+                >
+                    +0 pts acima da meta
+                </div>
+
+
+                <div class="goal-meta">
+
+                    <div class="goal-meta-item">
+
+                        <span>
+                            Meta definida
+                        </span>
+
+                        <span id="goalTargetDisplay">
+                            10.000
+                        </span>
+
+                    </div>
+
+
+                    <div class="goal-meta-item">
+
+                        <span>
+                            Pontos ao chegar
+                        </span>
+
+                        <span id="goalActualPoints">
+                            0
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="stats">
+
+                <div class="stat">
+
+                    <div class="stat-label">
+                        VIP mais rápido
+                    </div>
+
+                    <div
+                        id="statGoalBestVip"
+                        class="stat-value gold"
+                    >
+                        Ouro
+                    </div>
+
+                </div>
+
+
+                <div class="stat">
+
+                    <div class="stat-label">
+                        Resets no melhor VIP
+                    </div>
+
+                    <div
+                        id="statGoalBestResets"
+                        class="stat-value blue"
+                    >
+                        0
+                    </div>
+
+                </div>
+
+
+                <div class="stat">
+
+                    <div class="stat-label">
+                        Seu VIP vs melhor
+                    </div>
+
+                    <div
+                        id="statGoalResetsDiff"
+                        class="stat-value green"
+                    >
+                        0
+                    </div>
+
+                </div>
+
+
+                <div class="stat">
+
+                    <div class="stat-label">
+                        Próximo reset (seu VIP)
+                    </div>
+
+                    <div
+                        id="statGoalNextResetPts"
+                        class="stat-value"
+                    >
+                        +84
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <section class="section">
+
+            <div class="section-header">
+
+                <div>
+
+                    <h2 class="section-title">
+                        Resets por VIP
+                    </h2>
+
+                    <p class="section-description">
+                        Quantidade mínima de resets para atingir a meta em cada nível.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="table-wrap">
+
+                <table>
+
+                    <thead>
+
+                        <tr>
+
+                            <th>
+                                VIP
+                            </th>
+
+                            <th>
+                                Resets necessários
+                            </th>
+
+                            <th>
+                                Pontos ao chegar
+                            </th>
+
+                            <th>
+                                Diferença vs seu VIP
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+                    <tbody id="goalTableBody">
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+    </div>
+
+
+    <div
+        id="panelReference"
+        class="tab-panel"
+        role="tabpanel"
+        aria-labelledby="tabReference"
+        hidden
+    >
 
     <!-- RESET RULES -->
     <div class="info-grid">
@@ -1244,9 +1789,17 @@
                 O próximo reset também é mostrado para facilitar
                 o planejamento da evolução do personagem.
 
+                <br><br>
+
+                Na aba <strong>Meta de pontos</strong>, o simulador faz o caminho
+                inverso: informe o total desejado e descubra quantos resets
+                são necessários em cada VIP.
+
             </div>
 
         </section>
+
+    </div>
 
     </div>
 
@@ -1454,7 +2007,9 @@
      */
 
     const vipInput = document.getElementById("vip");
+    const vipGoalInput = document.getElementById("vipGoal");
     const resetsInput = document.getElementById("resets");
+    const targetPointsInput = document.getElementById("targetPoints");
 
     const themeToggle = document.getElementById("themeToggle");
     const themeIcon = document.getElementById("themeIcon");
@@ -1472,7 +2027,37 @@
     const statDifference = document.getElementById("statDifference");
 
     const vipTableBody = document.getElementById("vipTableBody");
+    const goalTableBody = document.getElementById("goalTableBody");
     const rulesTableBody = document.getElementById("rulesTableBody");
+
+    const heroDescription = document.getElementById("heroDescription");
+    const tabButtons = document.querySelectorAll(".tab-btn");
+    const panelPoints = document.getElementById("panelPoints");
+    const panelGoal = document.getElementById("panelGoal");
+    const panelReference = document.getElementById("panelReference");
+
+    const goalSelectedVip = document.getElementById("goalSelectedVip");
+    const goalMainResets = document.getElementById("goalMainResets");
+    const goalSurplus = document.getElementById("goalSurplus");
+    const goalTargetDisplay = document.getElementById("goalTargetDisplay");
+    const goalActualPoints = document.getElementById("goalActualPoints");
+
+    const statGoalBestVip = document.getElementById("statGoalBestVip");
+    const statGoalBestResets = document.getElementById("statGoalBestResets");
+    const statGoalResetsDiff = document.getElementById("statGoalResetsDiff");
+    const statGoalNextResetPts = document.getElementById("statGoalNextResetPts");
+
+    const HERO_COPY = {
+        points:
+            "Informe seu VIP e a quantidade atual de resets para descobrir " +
+            "quantos pontos você já acumulou e quanto teria nos outros níveis VIP.",
+        goal:
+            "Informe a meta de pontos desejada e veja quantos resets são " +
+            "necessários em cada VIP — ideal para planejar evolução e investimento.",
+        reference:
+            "Consulte as faixas oficiais de pontos por reset e entenda como " +
+            "o acúmulo é calculado no MU Sky."
+    };
 
 
     /*
@@ -1604,6 +2189,102 @@
         }
 
         return rule[vip];
+    }
+
+
+    /*
+     * ============================================================
+     * RESETS MÍNIMOS PARA ATINGIR UMA META
+     * ============================================================
+     */
+
+    const MAX_RESET_SEARCH = 999999999;
+
+
+    function findResetsForTarget(targetPoints, vip) {
+
+        if (targetPoints <= 0) {
+            return {
+                resets: 0,
+                actualPoints: 0,
+                surplus: 0
+            };
+        }
+
+        let high = 1;
+
+        while (
+            high < MAX_RESET_SEARCH &&
+            calculateTotal(high, vip) < targetPoints
+        ) {
+            high = Math.min(high * 2, MAX_RESET_SEARCH);
+        }
+
+        const atCap =
+            calculateTotal(high, vip) < targetPoints;
+
+        if (atCap) {
+            const actualPoints =
+                calculateTotal(MAX_RESET_SEARCH, vip);
+
+            return {
+                resets: MAX_RESET_SEARCH,
+                actualPoints,
+                surplus: actualPoints - targetPoints,
+                capped: true
+            };
+        }
+
+        let lo = 0;
+        let hi = high;
+        let best = high;
+
+        while (lo <= hi) {
+
+            const mid =
+                Math.floor((lo + hi) / 2);
+
+            const total =
+                calculateTotal(mid, vip);
+
+            if (total >= targetPoints) {
+                best = mid;
+                hi = mid - 1;
+            } else {
+                lo = mid + 1;
+            }
+
+        }
+
+        const actualPoints =
+            calculateTotal(best, vip);
+
+        return {
+            resets: best,
+            actualPoints,
+            surplus: actualPoints - targetPoints,
+            capped: false
+        };
+
+    }
+
+
+    function getVipBadgeClass(vip) {
+
+        if (vip === "bronze") {
+            return "vip-bronze";
+        }
+
+        if (vip === "prata") {
+            return "vip-prata";
+        }
+
+        if (vip === "ouro") {
+            return "vip-ouro";
+        }
+
+        return "vip-free";
+
     }
 
 
@@ -1750,20 +2431,8 @@
                 );
 
 
-            let badgeClass =
-                "vip-free";
-
-            if (vip === "bronze") {
-                badgeClass = "vip-bronze";
-            }
-
-            if (vip === "prata") {
-                badgeClass = "vip-prata";
-            }
-
-            if (vip === "ouro") {
-                badgeClass = "vip-ouro";
-            }
+            const badgeClass =
+                getVipBadgeClass(vip);
 
 
             tr.innerHTML = `
@@ -1806,6 +2475,345 @@
             totals,
             bestVip
         };
+
+    }
+
+
+    /*
+     * ============================================================
+     * RENDERIZAR META POR VIP
+     * ============================================================
+     */
+
+    function renderGoalComparison(targetPoints, currentVip) {
+
+        goalTableBody.innerHTML = "";
+
+        const results = {};
+        let bestVip = "free";
+        let bestResets = Infinity;
+
+        for (const vip of Object.keys(VIPS)) {
+
+            results[vip] =
+                findResetsForTarget(
+                    targetPoints,
+                    vip
+                );
+
+            if (
+                results[vip].resets <
+                bestResets
+            ) {
+                bestResets =
+                    results[vip].resets;
+                bestVip = vip;
+            }
+
+        }
+
+        const baseResets =
+            results[currentVip].resets;
+
+
+        for (const vip of Object.keys(VIPS)) {
+
+            const vipInfo = VIPS[vip];
+            const data = results[vip];
+
+            const tr =
+                document.createElement("tr");
+
+            if (vip === currentVip) {
+                tr.classList.add("current-row");
+            }
+
+            const resetDiff =
+                data.resets -
+                baseResets;
+
+            let diffHtml;
+
+            if (resetDiff < 0) {
+
+                diffHtml = `
+                    <span class="difference positive">
+                        ${formatNumber(resetDiff)} resets
+                    </span>
+                `;
+
+            } else if (resetDiff > 0) {
+
+                diffHtml = `
+                    <span class="difference negative">
+                        +${formatNumber(resetDiff)} resets
+                    </span>
+                `;
+
+            } else {
+
+                diffHtml = `
+                    <span class="difference neutral">
+                        —
+                    </span>
+                `;
+
+            }
+
+            tr.innerHTML = `
+
+                <td>
+
+                    <span class="vip-name">
+
+                        <span class="vip-badge ${getVipBadgeClass(vip)}">
+                            ${vipInfo.icon}
+                            ${vipInfo.name}
+                        </span>
+
+                    </span>
+
+                </td>
+
+                <td>
+                    <span class="total-points resets-count">
+                        ${formatNumber(data.resets)}
+                    </span>
+                </td>
+
+                <td>
+                    ${formatNumber(data.actualPoints)}
+                </td>
+
+                <td>
+                    ${diffHtml}
+                </td>
+
+            `;
+
+            goalTableBody.appendChild(tr);
+
+        }
+
+        return {
+            results,
+            bestVip,
+            bestResets
+        };
+
+    }
+
+
+    /*
+     * ============================================================
+     * ATUALIZAR ABA META DE PONTOS
+     * ============================================================
+     */
+
+    function updateGoal() {
+
+        let target =
+            parseInt(
+                targetPointsInput.value,
+                10
+            );
+
+        if (
+            Number.isNaN(target) ||
+            target < 0
+        ) {
+            target = 0;
+        }
+
+        target = Math.floor(target);
+        targetPointsInput.value = target;
+
+        const currentVip =
+            vipGoalInput.value;
+
+        const goal =
+            findResetsForTarget(
+                target,
+                currentVip
+            );
+
+        goalSelectedVip.textContent =
+            VIPS[currentVip].icon +
+            " " +
+            VIPS[currentVip].name;
+
+        goalTargetDisplay.textContent =
+            formatNumber(target);
+
+        if (target <= 0) {
+
+            goalMainResets.textContent =
+                "0";
+
+            goalActualPoints.textContent =
+                "0";
+
+            goalSurplus.hidden = true;
+
+        } else {
+
+            goalMainResets.textContent =
+                formatNumber(goal.resets);
+
+            goalActualPoints.textContent =
+                formatNumber(goal.actualPoints);
+
+            if (goal.surplus > 0) {
+
+                goalSurplus.hidden = false;
+                goalSurplus.textContent =
+                    "+" +
+                    formatNumber(goal.surplus) +
+                    " pts acima da meta";
+
+            } else {
+
+                goalSurplus.hidden = true;
+
+            }
+
+        }
+
+        const comparison =
+            renderGoalComparison(
+                target,
+                currentVip
+            );
+
+        statGoalBestVip.textContent =
+            VIPS[comparison.bestVip].name;
+
+        statGoalBestResets.textContent =
+            formatNumber(
+                comparison.bestResets
+            );
+
+        const yourResets =
+            comparison.results[currentVip].resets;
+
+        const diffToBest =
+            yourResets -
+            comparison.bestResets;
+
+        if (
+            target <= 0 ||
+            diffToBest === 0
+        ) {
+
+            statGoalResetsDiff.textContent =
+                target <= 0
+                    ? "—"
+                    : "Você está no melhor";
+
+            statGoalResetsDiff.className =
+                "stat-value green";
+
+        } else {
+
+            statGoalResetsDiff.textContent =
+                "+" +
+                formatNumber(diffToBest) +
+                " resets";
+
+            statGoalResetsDiff.className =
+                "stat-value warn";
+
+        }
+
+        const nextReset =
+            goal.resets + 1;
+
+        statGoalNextResetPts.textContent =
+            target <= 0
+                ? "—"
+                : "+" +
+                  formatNumber(
+                      getPointsForReset(
+                          nextReset,
+                          currentVip
+                      )
+                  );
+
+        localStorage.setItem(
+            "muSkyTargetPoints",
+            String(target)
+        );
+
+        localStorage.setItem(
+            "muSkyVip",
+            currentVip
+        );
+
+    }
+
+
+    /*
+     * ============================================================
+     * ABAS
+     * ============================================================
+     */
+
+    function setActiveTab(tabId) {
+
+        const panels = {
+            points: panelPoints,
+            goal: panelGoal,
+            reference: panelReference
+        };
+
+        tabButtons.forEach(button => {
+
+            const isActive =
+                button.dataset.tab === tabId;
+
+            button.classList.toggle(
+                "active",
+                isActive
+            );
+
+            button.setAttribute(
+                "aria-selected",
+                isActive ? "true" : "false"
+            );
+
+        });
+
+        for (const [id, panel] of Object.entries(panels)) {
+
+            if (!panel) {
+                continue;
+            }
+
+            panel.hidden = id !== tabId;
+
+        }
+
+        heroDescription.textContent =
+            HERO_COPY[tabId] ||
+            HERO_COPY.points;
+
+        localStorage.setItem(
+            "muSkyActiveTab",
+            tabId
+        );
+
+    }
+
+
+    function syncVipSelects(source) {
+
+        if (source === "points") {
+            vipGoalInput.value =
+                vipInput.value;
+        } else {
+            vipInput.value =
+                vipGoalInput.value;
+        }
 
     }
 
@@ -1962,6 +2970,8 @@
             String(resets)
         );
 
+        syncVipSelects("points");
+
     }
 
 
@@ -1973,8 +2983,37 @@
 
     vipInput.addEventListener(
         "change",
-        update
+        function () {
+            syncVipSelects("points");
+            update();
+            updateGoal();
+        }
     );
+
+    vipGoalInput.addEventListener(
+        "change",
+        function () {
+            syncVipSelects("goal");
+            update();
+            updateGoal();
+        }
+    );
+
+    targetPointsInput.addEventListener(
+        "input",
+        updateGoal
+    );
+
+    tabButtons.forEach(button => {
+
+        button.addEventListener(
+            "click",
+            function () {
+                setActiveTab(this.dataset.tab);
+            }
+        );
+
+    });
 
     resetsInput.addEventListener(
         "input",
@@ -2001,7 +3040,7 @@
      * Presets
      */
 
-    document.querySelectorAll(".preset").forEach(
+    document.querySelectorAll(".preset:not(.preset-goal)").forEach(
         button => {
 
             button.addEventListener(
@@ -2020,6 +3059,38 @@
 
         }
     );
+
+
+    document.querySelectorAll(".preset-goal").forEach(
+        button => {
+
+            button.addEventListener(
+                "click",
+                function () {
+
+                    targetPointsInput.value =
+                        this.dataset.points;
+
+                    updateGoal();
+
+                    targetPointsInput.focus();
+
+                }
+            );
+
+        }
+    );
+
+
+    document
+        .getElementById("clearGoalButton")
+        .addEventListener("click", function () {
+
+            targetPointsInput.value = 0;
+
+            updateGoal();
+
+        });
 
 
     /*
@@ -2097,6 +3168,7 @@
         VIPS[savedVip]
     ) {
         vipInput.value = savedVip;
+        vipGoalInput.value = savedVip;
     }
 
 
@@ -2124,7 +3196,40 @@
      * ============================================================
      */
 
+    const savedTarget =
+        localStorage.getItem("muSkyTargetPoints");
+
+    if (savedTarget !== null) {
+
+        const parsedTarget =
+            parseInt(savedTarget, 10);
+
+        if (
+            !Number.isNaN(parsedTarget) &&
+            parsedTarget >= 0
+        ) {
+            targetPointsInput.value =
+                parsedTarget;
+        }
+
+    }
+
+
+    const savedTab =
+        localStorage.getItem("muSkyActiveTab") ||
+        "points";
+
+    if (
+        savedTab === "goal" ||
+        savedTab === "reference" ||
+        savedTab === "points"
+    ) {
+        setActiveTab(savedTab);
+    }
+
+
     update();
+    updateGoal();
 
 </script>
 
